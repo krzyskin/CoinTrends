@@ -7,7 +7,7 @@ class Chart extends React.Component {
 
 
     render() {
-        console.log(this.props.time);
+        //console.log(this.props.time);
         return (
             <div className="chart">
                 <Line
@@ -33,12 +33,63 @@ class Chart extends React.Component {
                             pointHoverBackgroundColor: 'rgba(255,255,255,1)',
                             pointHoverBorderColor: 'rgba(236,115,87, 1)',
                             data: this.props.average
-                        }]
+                        },
+                            {
+                                label: "My Second dataset",
+                                borderColor: 'rgba(75,192,192, 0.7)',
+                                pointBorderColor: 'rgba(75,115,87, 0.7)',
+                                borderWidth: 2,
+                                //kolor tla i legendy
+                                fill: true, //czy wypelnic zbior
+                                backgroundColor: 'rgba(236,115,87, 0.1)', //wplywa tez na kolor w legendzie
+                                //ustawienia punktu
+                                pointRadius: 4,
+                                pointBorderWidth: 1,
+                                pointBackgroundColor: 'rgba(255,255,255,1)',
+                                //ustawienia punktu hover
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 3,
+                                pointHoverBackgroundColor: 'rgba(255,255,255,1)',
+                                pointHoverBorderColor: 'rgba(236,115,87, 1)',
+
+                                data: this.props.averageL
+                            },
+                            {
+                                label: "My Third dataset",
+                                borderColor: 'rgba(132,177,237, 0.7)',
+                                pointBorderColor: 'rgba(132,115,87, 0.7)',
+                                borderWidth: 2,
+                                //kolor tla i legendy
+                                fill: true, //czy wypelnic zbior
+                                backgroundColor: 'rgba(236,115,87, 0.1)', //wplywa tez na kolor w legendzie
+                                //ustawienia punktu
+                                pointRadius: 4,
+                                pointBorderWidth: 1,
+                                pointBackgroundColor: 'rgba(255,255,255,1)',
+                                //ustawienia punktu hover
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 3,
+                                pointHoverBackgroundColor: 'rgba(255,255,255,1)',
+                                pointHoverBorderColor: 'rgba(236,115,87, 1)',
+
+                                data: this.props.averageE
+                            }
+                        ]
                     }}
                     width={600}
                     height={400}
                     options={{
-                        maintainAspectRatio: false
+
+                        scales: {
+                            yAxes: [{
+                                type: 'logarithmic',
+                                ticks: {
+                                    min: 0,
+                                    max: 20000
+                                }
+                            }]
+                        }
+
                     }}
 
                 />
@@ -63,6 +114,8 @@ class App extends React.Component {
         this.state = {
             time: [],
             average: [],
+            averageL: [],
+            averageE: [],
             error: undefined
         }
     }
@@ -71,13 +124,15 @@ class App extends React.Component {
         e.preventDefault();
         let tabAverageB = [];
         let tabTimeB = [];
+        let tabTimeE = [];
+        let tabAverageE = [];
+        let tabTimeL = [];
+        let tabAverageL = [];
         fetch('https://apiv2.bitcoinaverage.com/indices/global/history/BTCUSD?period=alltime&format=json').then(r => r.json()).then(data => {
             //console.log(data);
             for (let i = 0; i < data.length; i++) {
-
                 tabAverageB.push(data[i].average);
                 tabTimeB.push(data[i].time);
-
             }
             console.log(tabAverageB);
             console.log(tabTimeB);
@@ -88,6 +143,36 @@ class App extends React.Component {
         }).catch(e => {
             console.log('Błąd!', e)
         });
+
+        fetch('https://apiv2.bitcoinaverage.com/indices/global/history/ETHUSD?period=alltime&format=json').then(r => r.json()).then(data => {
+            //console.log(data);
+            for (let i = 0; i < data.length; i++) {
+                tabAverageE.push(data[i].average);
+
+            }
+
+            this.setState({
+
+                averageE: tabAverageE
+            })
+        }).catch(e => {
+            console.log('Błąd!', e)
+        });
+
+        fetch('https://apiv2.bitcoinaverage.com/indices/global/history/LTCUSD?period=alltime&format=json').then(r => r.json()).then(data => {
+            //console.log(data);
+            for (let i = 0; i < data.length; i++) {
+                tabAverageL.push(data[i].average);
+
+            }
+            this.setState({
+
+                averageL: tabAverageL
+            })
+        }).catch(e => {
+            console.log('Błąd!', e)
+        });
+
     };
 
     render() {
@@ -98,6 +183,9 @@ class App extends React.Component {
 
                 <Chart time={this.state.time}
                        average={this.state.average}
+                       averageL={this.state.averageL}
+                       averageE={this.state.averageE}
+
                        error={this.state.error}/>
             </div>
         )
