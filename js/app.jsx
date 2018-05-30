@@ -79,7 +79,6 @@ class Chart extends React.Component {
                     width={600}
                     height={400}
                     options={{
-
                         scales: {
                             yAxes: [{
                                 type: 'logarithmic',
@@ -122,23 +121,29 @@ class App extends React.Component {
 
     getData = (e) => {
         e.preventDefault();
-        let tabAverageB = [];
-        let tabTimeB = [];
-        let tabTimeE = [];
-        let tabAverageE = [];
-        let tabTimeL = [];
-        let tabAverageL = [];
+        let dataArr = [];
+        let arrAverageB = [];
+        let arrTimeB = [];
+        let arrTimeE = [];
+        let arrAverageE = [];
+        let arrTimeL = [];
+        let arrAverageL = [];
         fetch('https://apiv2.bitcoinaverage.com/indices/global/history/BTCUSD?period=alltime&format=json').then(r => r.json()).then(data => {
             //console.log(data);
             for (let i = 0; i < data.length; i++) {
-                tabAverageB.push(data[i].average);
-                tabTimeB.push(data[i].time);
+                dataArr.push(data[i]);
+                arrAverageB.push(data[i].average);
+                arrTimeB.push(data[i].time);
             }
-            console.log(tabAverageB);
-            console.log(tabTimeB);
+
+            let index = arrTimeB.indexOf("2016-03-07 00:00:00");
+            arrTimeB.splice(index);
+            console.log(arrTimeB);
+            //console.log(arrAverageB);
+            //console.log(arrTimeB);
             this.setState({
-                time: tabTimeB,
-                average: tabAverageB
+                time: arrTimeB,
+                average: arrAverageB
             })
         }).catch(e => {
             console.log('Błąd!', e)
@@ -147,27 +152,29 @@ class App extends React.Component {
         fetch('https://apiv2.bitcoinaverage.com/indices/global/history/ETHUSD?period=alltime&format=json').then(r => r.json()).then(data => {
             //console.log(data);
             for (let i = 0; i < data.length; i++) {
-                tabAverageE.push(data[i].average);
+                arrAverageE.push(data[i].average);
+                arrTimeE.push(data[i].time);
 
             }
 
             this.setState({
-
-                averageE: tabAverageE
+                averageE: arrAverageE
             })
         }).catch(e => {
             console.log('Błąd!', e)
         });
 
         fetch('https://apiv2.bitcoinaverage.com/indices/global/history/LTCUSD?period=alltime&format=json').then(r => r.json()).then(data => {
-            //console.log(data);
+            console.log(data);
             for (let i = 0; i < data.length; i++) {
-                tabAverageL.push(data[i].average);
+                arrAverageL.push(data[i].average);
+                arrTimeL.push(data[i].time);
 
             }
+            //console.log(arrTimeL);
+            //console.log(arrAveragL);
             this.setState({
-
-                averageL: tabAverageL
+                averageL: arrAverageL
             })
         }).catch(e => {
             console.log('Błąd!', e)
@@ -181,12 +188,13 @@ class App extends React.Component {
             <div>
                 <DataButton getData={this.getData}/>
 
-                <Chart time={this.state.time}
-                       average={this.state.average}
-                       averageL={this.state.averageL}
-                       averageE={this.state.averageE}
-
-                       error={this.state.error}/>
+                <Chart
+                    time={this.state.time}
+                    average={this.state.average}
+                    averageL={this.state.averageL}
+                    averageE={this.state.averageE}
+                    error={this.state.error}
+                />
             </div>
         )
     }
