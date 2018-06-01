@@ -14,7 +14,7 @@ class Chart extends React.Component {
                     data={{
                         labels: this.props.time,
                         datasets: [{
-                            label: "My First dataset",
+                            label: "BTCUSD",
                             //linia
                             //borderDash: [3, 3], //jezeli ustawione to przerywana linia
                             borderColor: 'rgba(236,115,87, 0.7)',
@@ -35,7 +35,7 @@ class Chart extends React.Component {
                             data: this.props.average
                         },
                             {
-                                label: "My Second dataset",
+                                label: "ETHUSD",
                                 borderColor: 'rgba(75,192,192, 0.7)',
                                 pointBorderColor: 'rgba(75,115,87, 0.7)',
                                 borderWidth: 2,
@@ -55,7 +55,7 @@ class Chart extends React.Component {
                                 data: this.props.averageL
                             },
                             {
-                                label: "My Third dataset",
+                                label: "LTCUSD",
                                 borderColor: 'rgba(132,177,237, 0.7)',
                                 pointBorderColor: 'rgba(132,115,87, 0.7)',
                                 borderWidth: 2,
@@ -111,7 +111,7 @@ class App extends React.Component {
     constructor(props) {
         super();
         this.state = {
-            time: [],
+            time: undefined,
             average: [],
             averageL: [],
             averageE: [],
@@ -124,23 +124,77 @@ class App extends React.Component {
         let dataArr = [];
         let arrAverageB = [];
         let arrTimeB = [];
+        let arrTimeBtc = [];
         let arrTimeE = [];
         let arrAverageE = [];
         let arrTimeL = [];
         let arrAverageL = [];
+
         fetch('https://apiv2.bitcoinaverage.com/indices/global/history/BTCUSD?period=alltime&format=json').then(r => r.json()).then(data => {
             //console.log(data);
             for (let i = 0; i < data.length; i++) {
-                dataArr.push(data[i]);
-                arrAverageB.push(data[i].average);
-                arrTimeB.push(data[i].time);
+                //dataArr.push(data[i]);
+
+                arrTimeBtc.push(data[i].time);
+
             }
 
-            let index = arrTimeB.indexOf("2016-03-07 00:00:00");
-            arrTimeB.splice(index);
-            console.log(arrTimeB);
-            //console.log(arrAverageB);
-            //console.log(arrTimeB);
+            let index = arrTimeBtc.indexOf("2016-03-07 00:00:00");
+
+            data.splice(index);
+
+
+            let newArr = [];
+            for (let i = 0; i < data.length - 1; i++) {
+
+
+                let curr = data[i];
+                let next = data[i + 1];
+
+                let date = new Date(curr.time);
+                let endDate = new Date(next.time);
+
+                date = date.setDate(date.getDate() - 1);
+                endDate = endDate.setDate(endDate.getDate());
+
+                if (date == endDate) {
+                    newArr.push(curr);
+                }
+
+
+                else if (date !== endDate) {
+
+                    function fillDates(start, end) {
+                        let output = [];
+
+                        do {
+                            output.push({
+                                "time": start.toISOString().substring(0, 10),
+                                "average": undefined
+                            });
+                            start.setDate(start.getDate() - 1);
+
+                        } while (start >= end);
+
+                        for (let i = 0; i < output.length; i++) {
+                            newArr.push(output[i]);
+                        }
+                    }
+
+                    let start = new Date(date);
+                    let end = new Date(endDate);
+                    fillDates(start, end);
+                }
+
+            }
+            newArr.push(data[data.length - 1]);
+
+
+            for (let i = 0; i < newArr.length; i++) {
+                arrTimeB.push(newArr[i].time.substring(0, 10));
+                arrAverageB.push(newArr[i].average);
+            }
+
             this.setState({
                 time: arrTimeB,
                 average: arrAverageB
@@ -151,10 +205,55 @@ class App extends React.Component {
 
         fetch('https://apiv2.bitcoinaverage.com/indices/global/history/ETHUSD?period=alltime&format=json').then(r => r.json()).then(data => {
             //console.log(data);
-            for (let i = 0; i < data.length; i++) {
-                arrAverageE.push(data[i].average);
-                arrTimeE.push(data[i].time);
 
+            let newArr = [];
+            for (let i = 0; i < data.length - 1; i++) {
+
+
+                let curr = data[i];
+                let next = data[i + 1];
+
+                let date = new Date(curr.time);
+                let endDate = new Date(next.time);
+
+                date = date.setDate(date.getDate() - 1);
+                endDate = endDate.setDate(endDate.getDate());
+
+                if (date == endDate) {
+                    newArr.push(curr);
+                }
+
+
+                else if (date !== endDate) {
+
+                    function fillDates(start, end) {
+                        let output = [];
+
+                        do {
+
+                            output.push({
+                                "time": start.toISOString().substring(0, 10),
+                                "average": undefined
+                            });
+                            start.setDate(start.getDate() - 1);
+
+                        } while (start >= end);
+
+                        for (let i = 0; i < output.length; i++) {
+                            newArr.push(output[i]);
+                        }
+                    }
+
+                    let start = new Date(date);
+                    let end = new Date(endDate);
+                    fillDates(start, end);
+                }
+
+            }
+            newArr.push(data[data.length - 1]);
+
+            for (let i = 0; i < newArr.length; i++) {
+                arrAverageE.push(newArr[i].average);
             }
 
             this.setState({
@@ -166,11 +265,59 @@ class App extends React.Component {
 
         fetch('https://apiv2.bitcoinaverage.com/indices/global/history/LTCUSD?period=alltime&format=json').then(r => r.json()).then(data => {
             console.log(data);
-            for (let i = 0; i < data.length; i++) {
-                arrAverageL.push(data[i].average);
-                arrTimeL.push(data[i].time);
+
+            let newArr = [];
+            for (let i = 0; i < data.length - 1; i++) {
+
+                let curr = data[i];
+                let next = data[i + 1];
+
+                let date = new Date(curr.time);
+                let endDate = new Date(next.time);
+
+                date = date.setDate(date.getDate() - 1);
+                endDate = endDate.setDate(endDate.getDate());
+
+                if (date == endDate) {
+                    newArr.push(curr);
+                }
+
+
+                else if (date !== endDate) {
+
+                    function fillDates(start, end) {
+                        let output = [];
+
+                        do {
+
+                            output.push({
+                                "time": start.toISOString().substring(0, 10),
+                                "average": undefined
+                            });
+                            start.setDate(start.getDate() - 1);
+
+                        } while (start >= end);
+
+                        for (let i = 0; i < output.length; i++) {
+                            newArr.push(output[i]);
+                        }
+                    }
+
+                    let start = new Date(date);
+                    let end = new Date(endDate);
+                    fillDates(start, end);
+                }
 
             }
+            newArr.push(data[data.length - 1]);
+
+            //console.log(newArr);
+
+            for (let i = 0; i < newArr.length; i++) {
+                //arrTimeE.push(newArr[i].time.substring(0, 10));
+                arrAverageL.push(newArr[i].average);
+            }
+
             //console.log(arrTimeL);
             //console.log(arrAveragL);
             this.setState({
